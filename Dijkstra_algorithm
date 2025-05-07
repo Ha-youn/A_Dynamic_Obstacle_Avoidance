@@ -1,4 +1,5 @@
 import heapq
+import numpy as np
 
 class Queue(object):
     def __init__(self):
@@ -13,15 +14,10 @@ class Queue(object):
     def pop(self):
         return heapq.heappop(self.elements)[1]
 
-grid = [
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 1, 1, 1, 1, 1, 1, 1, 1, 0],
-    [0, 3, 0, 0, 0, 0, 2, 0, 1, 0],
-    [0, 3, 1, 1, 1, 0, 1, 0, 1, 0],
-    [0, 0, 1, 0, 1, 0, 1, 1, 1, 0],
-    [0, 1, 1, 0, 1, 1, 1, 0, 1, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-]
+u_field = np.zeros((7, 10))
+v_field = np.zeros((7, 10))
+u_field[2:5, 2:8] = 0.5
+v_field[2:5, 2:8] = 0.2
 
 start = (1, 5)
 goal = (8, 1)
@@ -32,25 +28,49 @@ came_from = {}
 cost_so_far = {}
 cost_so_far[start] = 0
 
-def calc_cost(current, next):
-    (x, y) = next
-    return cost_so_far[current] + grid[y][x]
+directions = [(1, 0), (0, -1), (-1, 0), (0, 1)]
+
+def calc_cost(current, next, direction):
+    (x, y) = current
+    u = u_field[y][x]
+    v = v_field[y][x]
+    dx, dy = direction
+
+    mag_dir = (dx**2 + dy**2)**0.5
+    dx /= mag_dir
+    dy /= mag_dir
+
+    current_mag = (u**2 + v**2)**0.5
+    if current_mag == 0:
+        flow_dx, flow_dy = 0.0, 0.0
+    else:
+        flow_dx = u / current_mag
+        flow_dy = v / current_mag
+
+    cos_theta = dx * flow_dx + dy * flow_dy
+
+    influence = current_mag * cos_theta
+
+    base_cost = 1.0
+    cost = base_cost - influence
+
+    return cost_so_far[current] + max(cost, 0.01)
 
 while queue.length() > 0:
     current = queue.pop()
-
     if current == goal:
         break
 
-    (x, y) = current
-    candidates = [(x+1, y), (x, y-1), (x-1, y), (x, y+1)]
-
-    for next in [(h, v) for h, v in candidates if grid[v][h] != 0]:
-        new_cost = calc_cost(current, next)
-        if next not in came_from or new_cost < cost_so_far[next]:
-            queue.push(next, new_cost)
-            cost_so_far[next] = new_cost
-            came_from[next] = current
+    x, y = current
+    for dx, dy in directions:
+        nx, ny = x + dx, y + dy
+        if 0 <= nx < u_field.shape[1] and 0 <= ny < u_field.shape[0]:
+            next = (nx, ny)
+            new_cost = calc_cost(current, next, (dx, dy))
+            if next not in cost_so_far or new_cost < cost_so_far[next]:
+                cost_so_far[next] = new_cost
+                came_from[next] = current
+                queue.push(next, new_cost)
 
 current = goal
 path = []
