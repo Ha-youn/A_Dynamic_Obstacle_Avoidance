@@ -1,5 +1,6 @@
 import heapq
 import numpy as np
+import matplotlib.pyplot as plt
 
 class Queue(object):
     def __init__(self):
@@ -48,9 +49,7 @@ def calc_cost(current, next, direction):
         flow_dy = v / current_mag
 
     cos_theta = dx * flow_dx + dy * flow_dy
-
     influence = current_mag * cos_theta
-
     base_cost = 1.0
     cost = base_cost - influence
 
@@ -80,6 +79,20 @@ while current != start:
 path.append(start)
 path.reverse()
 
-print("path:")
-for step in path:
-    print(step)
+X, Y = np.meshgrid(np.arange(u_field.shape[1]), np.arange(u_field.shape[0]))
+path_x = [p[0] for p in path]
+path_y = [p[1] for p in path]
+
+plt.figure(figsize=(10, 6))
+plt.quiver(X, Y, u_field, v_field, color='lightblue', scale=1, scale_units='xy', angles='xy', width=0.005)
+plt.plot(path_x, path_y, 'blue', linewidth=2, label='Path')
+plt.scatter(start[0], start[1], color='red', label='Start', zorder=5)
+plt.scatter(goal[0], goal[1], color='green', label='Goal', zorder=5)
+plt.gca().invert_yaxis()
+plt.xticks(np.arange(0, u_field.shape[1], 1))     
+plt.yticks(np.arange(0, u_field.shape[0], 1))     
+plt.title("Ocean Current Vector Field and Dijkstra Path")
+plt.legend()
+plt.grid(True)
+plt.axis("equal")
+plt.show()
