@@ -29,7 +29,10 @@ came_from = {}
 cost_so_far = {}
 cost_so_far[start] = 0
 
-directions = [(1, 0), (0, -1), (-1, 0), (0, 1)]
+directions = [
+    (1, 0), (0, -1), (-1, 0), (0, 1),
+    (1, -1), (-1, -1), (-1, 1), (1, 1)
+]
 
 def calc_cost(current, next, direction):
     (x, y) = current
