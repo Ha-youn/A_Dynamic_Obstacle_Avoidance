@@ -1,1 +1,23 @@
+import h5py
+import numpy as np
+import matplotlib.pyplot as plt
 
+
+with h5py.File("C:/Users/danah/Desktop/2018.h5", "r") as f:
+    fields = f["fields"]
+   
+    u = fields[0, 0, :, :]  # t=0, u10
+    v = fields[0, 1, :, :]  # t=0, v10
+
+    # down sampling
+    u_ds = u[::10, ::10]
+    v_ds = v[::10, ::10]
+
+   # plot
+    X, Y = np.meshgrid(np.arange(u_ds.shape[1]), np.arange(u_ds.shape[0]))
+    plt.figure(figsize=(12, 6))
+    plt.quiver(X, Y, u_ds, v_ds, scale=400)
+    plt.title("u10/v10 field at t=0")
+    plt.gca().invert_yaxis()
+    plt.grid(True)
+    plt.show()
