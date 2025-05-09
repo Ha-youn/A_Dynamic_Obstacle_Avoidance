@@ -24,3 +24,8 @@ with h5py.File("C:/Users/danah/Desktop/2018.h5", "r") as f:
     plt.ylabel("Latitude (°N)")
     plt.grid(True)
     plt.show()
+
+with h5py.File("uv_t0.h5", "w") as f:
+    f.create_dataset("u10", data=u_ds)
+    f.create_dataset("v10", data=v_ds)
+    
