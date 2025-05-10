@@ -20,9 +20,21 @@ with h5py.File("C:/Users/danah/Desktop/2018.h5", "r") as f:
     plt.figure(figsize=(12, 6))
     plt.quiver(Lon, Lat, u_ds, v_ds, scale=400)
     plt.title("u10/v10 field at t=0")
-    plt.xlabel("Longitude (°E)")
-    plt.ylabel("Latitude (°N)")
+    plt.xlabel("Longitude")
+    plt.ylabel("Latitude")
     plt.grid(True)
+
+    xticks = np.linspace(lon.min(), lon.max(), 6)
+    xtick_labels = [
+        f"{abs(x):.0f}°E" if x <= 180 else f"{abs(360 - x):.0f}°W"
+        for x in xticks
+    ]
+    plt.xticks(xticks, xtick_labels)
+
+    yticks = np.linspace(lat.min(), lat.max(), 5)
+    ytick_labels = [f"{y:.0f}°N" for y in yticks]
+    plt.yticks(yticks, ytick_labels)
+
     plt.show()
 
 with h5py.File("uv_t0.h5", "w") as f:
